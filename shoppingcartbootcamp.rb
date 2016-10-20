@@ -2,6 +2,7 @@ class ShoppingCart
 
 	def initialize
 		@items = {}
+		@banana_discount = false
 	end
 
 	def add_item_to_cart item
@@ -10,14 +11,39 @@ class ShoppingCart
 		else
 			@items[item] = 1
 		end
-		# item_price = list_of_prices.get_item_price item
-		# @items[item] += item_price
 	end
 
 	def show 
 		@items.each do |key, value|
-			item_price = (ListOfPrices.get_item_price key) * value
-			puts "#{value}uds x #{key} : #{item_price}$"
+			total_item_price = calculate_total_price key, value
+			discounted_price = calculate_discounted_price key, value
+			puts "#{value}uds x #{key} - Initial price: #{total_item_price}$ - Discounted price: #{discounted_price}$"
+		end
+	end
+
+	def calculate_total_price key, value
+		(ListOfPrices.get_item_price key) * value
+	end
+
+	def calculate_discounted_price key, value
+
+		if key == :apples && value == 2
+			ListOfPrices.get_item_price key
+		elsif key == :oranges && value == 3
+			(ListOfPrices.get_item_price key) * 2
+		else 
+			discounted_price = calculate_total_price key, value
+		end
+	end
+
+	def check_banana_discount
+		@items.each do |key, value|
+			if key == :grapes && value == 4
+				@banana_discount = true
+			end
+		end
+		if @banana_discount
+			add_item_to_cart :free_bananas
 		end
 	end
 
@@ -25,12 +51,15 @@ end
 
 class ListOfPrices
 
+	attr_accessor :list_of_prices
+
 	@@list_of_prices = {
 		:apples => 10,
 		:oranges => 5,
 		:grapes => 15,
 		:bananas => 20,
 		:watermelon => 50,
+		:free_bananas => 0,
 	}
 
 	def self.show_list_of_prices
@@ -44,41 +73,24 @@ class ListOfPrices
 		@@list_of_prices[item]
 	end
 
-	# attr_accessor :name, :price
-
-	# def initialize name, price
-	# 	@name = name
-	# 	@price = price
-	# end
 end
 
-# class Item
 
-# 	attr_accessor :name
-
-# 	def initialize name
-# 		@name = name
-# 	end
-
-# end
-
-ListOfPrices.show_list_of_prices
+# ListOfPrices.show_list_of_prices
 cart = ShoppingCart.new
 
-# apples = ListOfPrices.new "apples", 10
-# oranges = ListOfPrices.new "oranges", 5
-# grapes = ListOfPrices.new "grapes", 15
-# bananas = ListOfPrices.new "banana", 20
-# watermelon = ListOfPrices.new "watermelon", 50
-
-# apples = Item.new "apples"
-# oranges = Item.new "oranges"
-# grapes = Item.new "grapes"
-# bananas = Item.new "banana"
-# watermelon = Item.new "watermelon"
-
+cart.add_item_to_cart :apples
 cart.add_item_to_cart :apples
 cart.add_item_to_cart :bananas
 cart.add_item_to_cart :bananas
+cart.add_item_to_cart :oranges
+cart.add_item_to_cart :oranges
+cart.add_item_to_cart :oranges
+cart.add_item_to_cart :grapes
+cart.add_item_to_cart :grapes
+cart.add_item_to_cart :grapes
+cart.add_item_to_cart :grapes
 
+
+cart.check_banana_discount
 cart.show
